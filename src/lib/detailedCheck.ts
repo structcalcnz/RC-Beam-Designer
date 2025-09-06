@@ -92,7 +92,7 @@ export function performDetailedCheck(): DesignCheckResults {
     } else if (isMinShearReinforcementWaived) {
         results.push({ checkName: 'Shear Reinforcement Minima', value: '-', limit: '-', status: 'pass', notes: 'User has waived minimum shear reinforcement checks per NZS3101.' });
     } else {
-        const Av_min = (1 / 16) * Math.sqrt(fc) * B * (1000/fys); // Note: This is Av/s, so we check Av/s vs Av_min
+        //const Av_min = (1 / 16) * Math.sqrt(fc) * B * (1000/fys);  Note: This is Av/s, so we check Av/s vs Av_min
         const Av_provided_per_mm = Av / ss;
         const Av_min_per_mm = (1/16) * Math.sqrt(fc) * B / fys;
         
