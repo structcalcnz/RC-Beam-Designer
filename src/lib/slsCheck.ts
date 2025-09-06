@@ -204,22 +204,36 @@ export function performSLSCheck(): CheckResult[] | { error: string } {
     const ulsStressResult = getSteelStress(designForces.moment * 1e6);
     const slsStressResult = getSteelStress(M_sls_kNm * 1e6);
 
-    if (!ulsStressResult.ok || !slsStressResult.ok) {
-        return { error: ulsStressResult.reason || slsStressResult.reason || "Stress calculation failed." };
+    if (!ulsStressResult.ok) {
+        return { error: ulsStressResult.reason || "ULS stress calculation failed." };
     }
-    
-    results.push({
-        checkName: 'ULS Steel Stress, fsu', value: `${ulsStressResult.fs.toFixed(1)} MPa`,
-        limit: `fy = ${fy.toFixed(0)} MPa`, status: ulsStressResult.branch === 'yielded' ? 'fail' : 'pass',
-        notes: ulsStressResult.branch,
-    });
-    results.push({ checkName: 'SLS Steel Stress, fss', value: `${slsStressResult.fs.toFixed(1)} MPa`, limit: '-', status: 'info' });
+    if (!slsStressResult.ok) {
+        return { error: slsStressResult.reason || "SLS stress calculation failed." };
+    }
+    if (ulsStressResult.ok === true) {
+      results.push({
+          checkName: 'ULS Steel Stress, fsu',
+          value: `${('fs' in ulsStressResult ? ulsStressResult.fs.toFixed(1) : 'N/A')} MPa`,
+          limit: `fy = ${fy.toFixed(0)} MPa`,
+          status: (ulsStressResult as Extract<typeof ulsStressResult, { ok: true }>).branch === 'yielded' ? 'fail' : 'pass',
+          notes: (ulsStressResult as Extract<typeof ulsStressResult, { ok: true }>).branch,
+      });
+    }
+    if (slsStressResult.ok === true) {
+      results.push({
+          checkName: 'SLS Steel Stress, fss',
+          value: `${('fs' in slsStressResult ? slsStressResult.fs.toFixed(1) : 'N/A')} MPa`,
+          limit: '-',
+          status: 'info'
+      });
+    }
 
     // --- Crack Width Checks ---
     const { fsc_half } = calculateShrinkageStress();
     results.push({ checkName: 'Shrinkage Stress, fsc', value: `${fsc_half.toFixed(1)} MPa`, limit: '-', status: 'info' });
 
-    const w_sls = calculateCrackWidth(slsStressResult.fs, fsc_half);
+    const fs_sls = (slsStressResult.ok === true && 'fs' in slsStressResult) ? slsStressResult.fs : 0;
+    const w_sls = calculateCrackWidth(fs_sls, fsc_half);
     results.push({
         checkName: 'SLS Crack Width, w_sls', value: `${w_sls.toFixed(3)} mm`, limit: `≤ ${crackWidthLimit.toFixed(2)} mm`,
         status: w_sls <= crackWidthLimit ? 'pass' : 'fail',
