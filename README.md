@@ -406,41 +406,41 @@ $$ f_{s,c} ≈ E_s \varepsilon_{sh} \frac{\rho}{1 + \rho n} $$
 
 -   **Effective steel stress:**
 
-    $$
-    f_{s,ch} = f_s + 0.5f_{sc}
-    $$
+$$
+f_{s,ch} = f_s + 0.5f_{sc}
+$$
 
 -   **Maximum distance from extreme fiber to tension steel centroid:**
 
-    $$
-    g_s = \sqrt{\left(\frac{s}{2}\right)^2 + \left(\text{cover} + d_s + \frac{d_b}{2}\right)^2} - \frac{d_b}{2}
-    $$
+$$
+g_s = \sqrt{\left(\frac{s}{2}\right)^2 + \left(\text{cover} + d_s + \frac{d_b}{2}\right)^2} - \frac{d_b}{2}
+$$
 
 -   **Crack width:**
 
-    $$
-    w = 2 g_s \frac{f_{s,ch}}{E_s} \quad [\text{mm}]
-    $$
+$$
+w = 2 g_s \frac{f_{s,ch}}{E_s} \quad [\text{mm}]
+$$
 
 >❗Note: the reinforcement spacing limit for crack control of a slab or wall member is not considered in this version. The user shall check the spacing limit according to NZS 3101.
 #### Effective Section Stiffness ($I_e$)
 
 -   **Cracked section inertia:**
 
-    $$
-    I_{cr} = \frac{B x^3}{3} + \frac{E_s}{E_c} A_s (d - x)^2
-    $$
+$$
+I_{cr} = \frac{B x^3}{3} + \frac{E_s}{E_c} A_s (d - x)^2
+$$
 
 &nbsp;&nbsp;where, $x$ is the estimated nuetral axis depth for the cracked section (no tension contributed by concrete).
 -   **Effective inertia for SLS moment $M_{SLS}$:**
 
-    $$
-    I_e =
-    \begin{cases}
-    I_g, & \text{if } M_{SLS} \le M_{cr} \\
-    \left(\frac{M_{cr}}{M_{SLS}}\right)^3 I_g + \left[1 - \left(\frac{M_{cr}}{M_{SLS}}\right)^3\right] I_{cr}, & \text{if } M_{SLS} > M_{cr}
-    \end{cases}
-    $$
+$$
+I_e =
+\begin{cases}
+I_g, & \text{if } M_{SLS} \le M_{cr} \\
+\left(\frac{M_{cr}}{M_{SLS}}\right)^3 I_g + \left[1 - \left(\frac{M_{cr}}{M_{SLS}}\right)^3\right] I_{cr}, & \text{if } M_{SLS} > M_{cr}
+\end{cases}
+$$
 
 #### Long-term Factor (Kcp)
 
