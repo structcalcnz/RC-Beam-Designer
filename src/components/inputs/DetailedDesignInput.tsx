@@ -94,7 +94,7 @@ export const DetailedDesignInput: React.FC = () => {
                             <Input id="stirrups-ds" type="number" value={finalReinforcement.ds} onChange={(e) => handleFieldChange('ds', e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="stirrups-ss">Spacing (mm)</Label>
+                            <Label htmlFor="stirrups-ss">Stirrup Spacing (mm)</Label>
                             <Input id="stirrups-ss" type="number" step={25} value={finalReinforcement.ss} onChange={(e) => handleFieldChange('ss', e.target.value)} />
                         </div>
                         <div className="space-y-2">

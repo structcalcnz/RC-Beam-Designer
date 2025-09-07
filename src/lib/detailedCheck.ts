@@ -6,6 +6,7 @@ import materialData from '@/data/material_database.json'; // To get strain value
 const barArea = (d: number) => (Math.PI * d * d) / 4;
 const stirrupArea = (ds: number, legs: number) => legs * barArea(ds);
 const calculateBeta1 = (fc: number) => (fc <= 30 ? 0.85 : Math.max(0.85 - 0.008 * (fc - 30), 0.65));
+const alpha1=0.85;
 
 export function performDetailedCheck(): DesignCheckResults {
     const state = useBeamDesignStore.getState();
@@ -41,7 +42,7 @@ export function performDetailedCheck(): DesignCheckResults {
 
     // --- 3. Ductility / Compressive Limit ---
     const beta1 = calculateBeta1(fc);
-    const a = (As * fy) / (0.85 * fc * B);
+    const a = (As * fy) / (alpha1 * fc * B);
     const c = a / beta1;
     const concreteStrain = materialData.materialProperties.find(m => m.type === 'concrete')?.strain || 0.003;
     const rebarStrain = materialData.materialProperties.find(m => m.type === 'rebar')?.strain || 0.0025;

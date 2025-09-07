@@ -24,20 +24,6 @@ const barArea = (d: number) => Math.PI * d * d / 4;
 const stirrupArea = (ds: number, legs: number) => legs * barArea(ds);
 
 /**
- * Calculates the concrete stress block factor, beta1, based on f'c.
- * Per NZS 3101, beta1 is 0.85 for f'c <= 30 MPa, and reduces linearly thereafter.
-*/
-
-function calculateBeta1(fc: number): number {
-    if (fc <= 30) {
-        return 0.85;
-    }
-    // Linearly reduce beta1 for f'c > 30 MPa, with a lower limit of 0.65.
-    const beta = 0.85 - 0.008 * (fc - 30);
-    return Math.max(beta, 0.65);
-}
-
-/**
  * Calculates a conservative minimum required steel area.
  * Based on NZS 3101: sqrt(f'c)/4fy * b * d
  * @returns Minimum steel area in mm².
@@ -68,7 +54,7 @@ function checkBarSpacing(B: number, cover: number, ds: number, db: number, n: nu
 
 interface RequiredAsParams {
     M: number; B: number; D: number; cover: number;
-    fy: number; fc: number; beta1: number; phi_b: number;
+    fy: number; fc: number; phi_b: number;
     ds: number; db: number;
 }
 
@@ -76,12 +62,12 @@ interface RequiredAsParams {
  * Calculates the required area of steel reinforcement for bending.
  * @returns Required steel area in mm². Returns Infinity if no real solution exists.
  */
-function calculateRequiredAs({ M, B, D, cover, fy, fc, beta1, phi_b, ds, db }: RequiredAsParams): number {
+function calculateRequiredAs({ M, B, D, cover, fy, fc, phi_b, ds, db }: RequiredAsParams): number {
     const M_Nmm = M * 1e6; // Convert moment from kNm to Nmm
     const d = D - cover - ds - db / 2; // Effective depth
-
+    const alpha1 =0.85;
     // Quadratic equation coefficients for As: a*As^2 + b*As + c = 0
-    const a = (fy ** 2) / (2 * beta1 * fc * B);
+    const a = (fy ** 2) / (2 * alpha1 * fc * B);
     const b = -fy * d;
     const c = M_Nmm / phi_b;
 
@@ -106,7 +92,7 @@ export function generateDesignOptions({ designForces, beamGeometry, materialProp
     const { breadth: B, depth: D, cover } = beamGeometry;
     const { concreteFc: fc, mainBarFy: fy, stirrupFys: fys } = materialProperties;
 
-    const beta1 = calculateBeta1(fc);
+    const alpha1 =0.85;
 
     const dbList = [12, 16, 20, 25];
     const dsList = [6, 10, 12];
@@ -126,7 +112,7 @@ export function generateDesignOptions({ designForces, beamGeometry, materialProp
 
             const warnings: string[] = []; // Initialize warnings array for this option
 
-            const AsReq = calculateRequiredAs({ M, B, D, cover, fy, fc, beta1, phi_b, ds, db });
+            const AsReq = calculateRequiredAs({ M, B, D, cover, fy, fc, phi_b, ds, db });
             if (!isFinite(AsReq)) continue;
 
             const n = Math.ceil(AsReq / barArea(db));
@@ -145,7 +131,7 @@ export function generateDesignOptions({ designForces, beamGeometry, materialProp
             }
 
             // Nominal Moment Capacity (Mn)
-            const a = (AsProv * fy) / (beta1 * fc * B);
+            const a = (AsProv * fy) / (alpha1 * fc * B);
             const Mn = AsProv * fy * (d - a / 2); // in Nmm
             const Mutil = (M * 1e6) / (phi_b * Mn);
             if (Mutil > 0.95) continue; // Filter out grossly inefficient or failed designs
@@ -153,7 +139,7 @@ export function generateDesignOptions({ designForces, beamGeometry, materialProp
             const rho = AsProv/(B * d);
 
             let vb: number;
-            if (fy >= 20) {
+            if (fc >= 20) {
                 vb = Math.min(Math.max((0.07 + 10 * rho) * Math.sqrt(fc), vbMin), vbMax); // in N/mm2
             } else {
                 vb = 0; // assume for masonry

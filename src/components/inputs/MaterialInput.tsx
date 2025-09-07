@@ -168,7 +168,7 @@ export const MaterialInput: React.FC = () => {
 
                     {/* Main Bar Strength (f'y) */}
                     <div className="space-y-2">
-                        <Label htmlFor="mainBarGrade">Main Reinforcement Strength (f'y)</Label>
+                        <Label htmlFor="mainBarGrade">Main Reinforcement Strength (fy)</Label>
                         <Select
                             onValueChange={handleMainBarGradeChange}
                             value={materialProperties.mainBarGradeName}
@@ -188,7 +188,7 @@ export const MaterialInput: React.FC = () => {
 
                     {/* Stirrup Strength (f'ys) */}
                     <div className="space-y-2">
-                        <Label htmlFor="stirrupGrade">Stirrup Reinforcement Strength (f'ys)</Label>
+                        <Label htmlFor="stirrupGrade">Stirrup Reinforcement Strength (fys)</Label>
                         <Select
                             onValueChange={handleStirrupGradeChange}
                             value={materialProperties.stirrupGradeName}
@@ -228,7 +228,7 @@ export const MaterialInput: React.FC = () => {
                         />
                     </div>
                     <div className="space-y-2" style={{ width: SELECT_WIDTH }}>
-                        <Label htmlFor="fy_derived" className="text-muted-foreground">Derived f'y (MPa)</Label>
+                        <Label htmlFor="fy_derived" className="text-muted-foreground">Derived fy (MPa)</Label>
                         <Input
                             id="fy_derived"
                             type="number"
@@ -238,7 +238,7 @@ export const MaterialInput: React.FC = () => {
                         />
                     </div>
                     <div className="space-y-2" style={{ width: SELECT_WIDTH }}>
-                        <Label htmlFor="fys_derived" className="text-muted-foreground">Derived f'ys (MPa)</Label>
+                        <Label htmlFor="fys_derived" className="text-muted-foreground">Derived fys (MPa)</Label>
                         <Input
                             id="fys_derived"
                             type="number"
