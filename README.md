@@ -127,7 +127,7 @@ Outputs:
 The application automatically generates and evaluates reinforcement layouts for rectangular beams based on the input design forces, geometry, and material properties.
 #### Preliminary vs Detailed Checks
 
-- **Preliminary sizing:** Design Options generation uses the steel yield stress ($f_y$) as the tension force for moment capacity checks (i.e. $(T = A_s f_y)$). This provides a conservative and fast screening of candidate layouts and ensures preliminary moment capacity is not under-estimated.
+- **Preliminary sizing:** Design Options generation uses the steel yield stress ($f_y$) as the tension force for moment capacity checks (i.e. $T=A_sf_y$). This provides a conservative and fast screening of candidate layouts and ensures preliminary moment capacity is not under-estimated.
 
 - **Detailed verification:** The actual steel stress (elastic or yielded) and neutral axis location are computed in the Detailed Design phase. The detailed check evaluates the elastic steel stress $f_s = E_s ε_s$ and will switch to the yielded branch where appropriate (however, overstrength behavior beyond yield is not considered in the current version). Where the yielded assumption applies ($f_s=f_y$), the corresponding ultimate flexural capacity is accepted as the section’s design strength.
 
@@ -144,6 +144,8 @@ The application automatically generates and evaluates reinforcement layouts for 
 
 #### 1. Stress Block Factor (α₁,β₁) as per NZS 3101 7.4.27.
 $$\alpha_1 = 0.85 \text{ where, f'c <55MPa}$$
+  
+
 $$
 \beta_1 =
 \begin{cases}
@@ -164,41 +166,52 @@ $$
 
 #### 4. Required Steel Area (A<sub>s,req</sub>)
 To calculate thee required steel area, start with the moment capacity equation:
+
 $$
 \frac{M^*}{\phi_b} = T \left( d_0 - \frac{1}{2} a \right)
 $$
-where
-$$
-a = \frac{C}{\alpha_1 f_c' B}
-$$
+
+*where,*
+
+$$a = \frac{C}{\alpha_1 f_c' B}$$
 
 Under equilibrium, we assume the tensile force $T$ equals the compressive force $C$, and is determined by the steel yield:
+
 $$
 T = C = A_s f_y
 $$
+
 Substitute the expressions for $a$ and $T$ into the moment equation:
+
 $$
 \frac{M^*}{\phi_b} = A_s f_y \left( d_0 - \frac{1}{2} \frac{A_s f_y}{\alpha_1 f_c' B} \right)
 $$
+
 Rearrange the terms to form a quadratic equation in the form of $a_q x^2 + b_q x + c_q = 0$, where the unknown is the area of steel, $A_s$:
+
 $$
 \underbrace{\left( \frac{f_y^2}{2 \alpha_1 f_c' B} \right)}_{a_q} A_s^2 - \underbrace{\left( f_y d_0 \right)}_{b_q} A_s + \underbrace{\left( \frac{M^*}{\phi_b} \right)}_{c_q} = 0
 $$
+
 This is calculated from the quadratic equilibrium equation where:
+
 - $$a = \frac{f_y^2}{2 \alpha_1 f_c' b}$$
 - $$b = -f_y d$$
 - $$c = \frac{M}{\phi_b}$$
 
 The required steel area is the minimum positive root of:
+
 $$
 A_{s,req} = \min\left(\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}\right)
 $$
 
 #### 5. Provided Steel Area (A<sub>s,prov</sub>)
+
 $$
 A_{s,prov} = n \cdot \frac{\pi d_b^2}{4}
 $$
-*Where 'n' is the number of bars.*
+
+&nbsp;&nbsp;*Where, 'n' is the number of bars.*
 
 #### 6. Bar Spacing Check
 This step ensures that the reinforcing bars fit within a single layer with a clear spacing greater than or equal to the maximum of the bar diameter (db) and 25 mm. Layouts requiring multiple layers are flagged with a warning.
@@ -206,10 +219,13 @@ This step ensures that the reinforcing bars fit within a single layer with a cle
 
 #### 7. Nominal Moment Capacity (Mₙ)
 First, calculate the depth of the equivalent rectangular stress block:
+
 $$
 a = \frac{A_{s,prov} f_y}{\alpha_1 f_c' b}
 $$
+
 Then, calculate the nominal moment capacity:
+
 $$
 M_n = A_{s,prov} f_y \left(d - \frac{a}{2}\right)
 $$
@@ -222,23 +238,29 @@ $$
 #### 9. Shear Capacity
 **Concrete Shear Contribution (V<sub>c</sub>):**
 Based on NZS 3101 expressions, with the following limits:
+
 $$
 V_c = v_c b d
 $$
+
 *Where v<sub>c</sub> is between [0.08√f<sub>c</sub>', 0.2√f<sub>c</sub>'] and the nominal shear stress v<sub>n</sub> ≤ min(0.2f<sub>c</sub>', 8 MPa).*
 >💡 Note: the minimum shear stress of the concrete is defined to min(0.2f<sub>c</sub>', 10 MPa).  
->     For masonry sections, v<sub>c</sub> is taken as 0 (masonry shear strength) in the design options generating process.
+&emsp; For masonry sections, v<sub>c</sub> is taken as 0 (masonry shear strength) in the design options generating process.
 
 **Stirrups Contribution (V<sub>s</sub>):**
+
 $$
 V_s = \frac{A_v f_{ys} d}{s}
 $$
-*Where the area of shear reinforcement A<sub>v</sub> is:*
+
+&nbsp;&nbsp; *Where the area of shear reinforcement A<sub>v</sub> is:*
+
 $$
 A_v = \text{legs} \cdot \frac{\pi d_s^2}{4}
 $$
 
 **Total Shear Capacity (V<sub>n</sub>):**
+
 $$
 V_n = V_c + V_s
 $$
@@ -294,7 +316,9 @@ $$
 #### Neutral Axis Depth and Ductility
 
 -   Concrete stress block depth:
+
  $$ a = \frac{A_s f_y}{\alpha_1 f_c' B}, \text{ with } \alpha_1 = 0.85 \text{ for } f_c' \le 55 MPa$$
+
 -   Neutral axis: $c = a / \beta_1$, where $\beta_1$ is per NZS 3101 7.4.27.
 -   Checks against ductility limit $c \le 0.75 c_b$, where $c_b = d \cdot \epsilon_c / (\epsilon_c + \epsilon_s)$
 
@@ -331,23 +355,29 @@ $$
     To estimate shrinkage strain, refer to NZS 3101 Appendix E. However, studies and reashes shows that the shrinkage strain in New Zealand is typically in the range of 400–700 µε, with considering 50%-70% related humidity and 15°C themal defference to the peak hytration.
 -   Crack width limit $w_{max}$ refer to NZS 3101 Table C2.1 (default 0.3 mm).
 
-#### Esumated Steel Stress
+#### Estimated Steel Stress
 Equilibrium (with Whitney block) and moment balance:
 -   Compressive force in concrete $C = \alpha_1 f'_c \beta_1 c B$
 -   Tensile force in steel $T = A_s f_s$
 -   Force and Moment equilibrium $C = T$ and $M_c+M_s+M_n=M^*/\phi_b$  
 where, $M_s = T (d - c)$ $Mc = C (c - a/2)$ and $M_n=0$
 -   Using $C=T$, the moment equation reduces to:
+
 $$ C (d - \frac{\beta_1}{2}c) = \frac{M^*}{\phi_b} $$
+
 -   Substitute the expression for the compressive force, $C = 0.85 f_c' \beta_1 c B$, into the moment equation:
+
 $$
 0.85 f_c' \beta_1 c B \left[ d - \frac{\beta_1}{2} c \right] = \frac{M^*}{\phi_b}
 $$
+
 -   This equation is quadratic in terms of the neutral axis depth, $c$. Solving for $c$ yields the physically admissible root:
+
 $$
 c = \frac{d - \sqrt{d^2 - \frac{2 M^*/\phi_b}{0.85 f_c' B}}}{\beta_1}
 $$
-> *(Note: The negative root is chosen so that as the applied moment $M^*$ approaches zero, the neutral axis depth $c$ also approaches zero).*
+
+> *Note: The negative root is chosen so that as the applied moment $M^*$ approaches zero, the neutral axis depth $c$ also approaches zero.*
 
 With the neutral axis depth determined, the following can be calculated:
 -   **Compressive Force:** $C = 0.85 f_c' \beta_1 c B$
@@ -356,7 +386,8 @@ With the neutral axis depth determined, the following can be calculated:
 
 - If the computed steel stress $f_s = C/A_s$ exceeds yield $f_y$, the linear-elastic assumption is violated.
 In that case, yielded steel case should be solved piecewise:
--   Set T=$A_s f_y$, and solve for $c$ from the force equilibrium $C=T$: 
+-   Set $T=A_sf_y$, and solve for $c$ from the force equilibrium $C=T$: 
+
 $$c = \frac{A_s f_y}{0.85 f_c' \beta_1 B} $$
     
 -   then check the mement $C(d-0.5*\beta_1c)$ against $M^*$.
@@ -366,6 +397,7 @@ $$c = \frac{A_s f_y}{0.85 f_c' \beta_1 B} $$
 -   Computes steel modulus of elasticity $E_s = 200000$ MPa
 -   Calculates transformed section ratio $n = E_s / E_c$
 -   Using the transformed-section simple estimate:
+
 $$ f_{s,c} ≈ E_s \varepsilon_{sh} \frac{\rho}{1 + \rho n} $$
 
 -   Accounts for additional stress due to concrete shrinkage: $f_{s,sh} = 0.5 f_{s,c}$. Only half of the induced stress is used to account for laboratory-based calibration.
@@ -373,28 +405,35 @@ $$ f_{s,c} ≈ E_s \varepsilon_{sh} \frac{\rho}{1 + \rho n} $$
 #### Crack Width Estimation
 
 -   **Effective steel stress:**
+
     $$
     f_{s,ch} = f_s + 0.5f_{sc}
     $$
 
 -   **Maximum distance from extreme fiber to tension steel centroid:**
+
     $$
     g_s = \sqrt{\left(\frac{s}{2}\right)^2 + \left(\text{cover} + d_s + \frac{d_b}{2}\right)^2} - \frac{d_b}{2}
     $$
 
 -   **Crack width:**
+
     $$
     w = 2 g_s \frac{f_{s,ch}}{E_s} \quad [\text{mm}]
     $$
+
 >❗Note: the reinforcement spacing limit for crack control of a slab or wall member is not considered in this version. The user shall check the spacing limit according to NZS 3101.
-#### Effective Section Stiffness (I_e)
+#### Effective Section Stiffness ($I_e$)
 
 -   **Cracked section inertia:**
+
     $$
     I_{cr} = \frac{B x^3}{3} + \frac{E_s}{E_c} A_s (d - x)^2
     $$
-where, $x$ is the estimated nuetral axis depth for the cracked section (no tension contributed by concrete).
+
+&nbsp;&nbsp;where, $x$ is the estimated nuetral axis depth for the cracked section (no tension contributed by concrete).
 -   **Effective inertia for SLS moment $M_{SLS}$:**
+
     $$
     I_e =
     \begin{cases}
@@ -403,12 +442,14 @@ where, $x$ is the estimated nuetral axis depth for the cracked section (no tensi
     \end{cases}
     $$
 
-#### Long-term Factor (Kcs)
+#### Long-term Factor (Kcp)
 
 This factor accounts for creep and sustained load effects on deflection:
+
 $$
-K_{cs} = \frac{2}{1 + 50 \rho'}
+K_{cp} = \frac{2}{1 + 50 \rho'}
 $$
+
 Where $\rho'$ is the compression reinforcement ratio. 
 >❗Note: The application assumes 2HD12 as compression reinforcement for this calculation.
 
